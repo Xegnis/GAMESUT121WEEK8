@@ -20,12 +20,27 @@ public class PathSystem : MonoBehaviour {
 
     public Transform startLocation;
 
+    [Header("Objects")]
+    public Transform player;
+    public Transform endPoint;
+    public GameObject cellObj;
+    public GameObject plus;
+    public GameObject minus;
+
+    List<GameObject> plusList = new List<GameObject>();
+    List<GameObject> minusList = new List<GameObject>();
+    List<GameObject> cellList = new List<GameObject>();
+
     int branchLength = 10;
     int branchNum = 3;
 
-    // Start is called before the first frame update
-    void Start() {
+    int plusNum = 1;
+    int minusNum = 2;
 
+    void Start()
+    {
+        SetSeed();
+        NextLevel();
     }
 
     void SetSeed() {
@@ -103,6 +118,30 @@ public class PathSystem : MonoBehaviour {
         }
     }
 
+    void CreatePlusPickups ()
+    {
+        for (int i = 0; i < plusNum + random.Next(2); i ++)
+        {
+            plusList.Add(Instantiate(plus, gridCellList[random.Next(gridCellList.Count - 1)].location, Quaternion.identity));
+        }
+    }
+
+    void CreateMinusPickups()
+    {
+        for (int i = 0; i < minusNum + random.Next(2); i++)
+        {
+            plusList.Add(Instantiate(minus, gridCellList[random.Next(gridCellList.Count - 1)].location, Quaternion.identity));
+        }
+    }
+
+    void CreateCells ()
+    {
+        foreach (MyGridCell cell in gridCellList)
+        {
+            cellList.Add(Instantiate(cellObj, cell.location, Quaternion.identity));
+        }
+    }
+
 
 
     private void OnDrawGizmos() {
@@ -114,22 +153,48 @@ public class PathSystem : MonoBehaviour {
         }
     }
 
-    // Update is called once per frame
+    public void NextLevel ()
+    {
+        foreach (GameObject pickup in plusList)
+        {
+            Destroy(pickup);
+        }
+        foreach (GameObject pickup in minusList)
+        {
+            Destroy(pickup);
+        }
+        foreach (GameObject cell in cellList)
+        {
+            Destroy(cell);
+        }
+        plusList.Clear();
+        minusList.Clear();
+        cellList.Clear();
+        player.position = startLocation.position;
+        gridCellList.Clear();
+        mainGridCellList.Clear();
+        CreateMainPath();
+        endPoint.position = mainGridCellList[mainGridCellList.Count - 1].location;
+        for (int i = 0; i < branchNum + random.Next(3); i++)
+        {
+            CreateBranchPath(branchLength + random.Next(3));
+        }
+        CreatePlusPickups();
+        CreateMinusPickups();
+        CreateCells();
+        pathLength += 2;
+        branchLength += 4;
+        branchNum += 2;
+        if (random.Next(100) > 70)
+            plusNum ++;
+        if (random.Next(100) > 30)
+            minusNum += random.Next(2);
+
+    }    
+
     void Update()
     {
         if (Input.GetKeyDown(KeyCode.Space))
-        {
-            SetSeed();
-            gridCellList.Clear();
-            mainGridCellList.Clear();
-            CreateMainPath();
-            for (int i = 0; i < branchNum + random.Next(3); i++)
-            {
-                CreateBranchPath(branchLength + random.Next(3));
-            }
-            pathLength += 2;
-            branchLength += 4;
-            branchNum += 2;
-        }
+            NextLevel();
     }
 }
