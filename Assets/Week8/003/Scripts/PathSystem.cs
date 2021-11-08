@@ -13,11 +13,15 @@ public class PathSystem : MonoBehaviour {
     [Space]
     public bool animatedPath;
     public List<MyGridCell> gridCellList = new List<MyGridCell>();
+    public List<MyGridCell> mainGridCellList = new List<MyGridCell>();
     public int pathLength = 10;
     [Range(1.0f, 10.0f)]
     public float cellSize = 1.0f;
 
     public Transform startLocation;
+
+    int branchLength = 10;
+    int branchNum = 3;
 
     // Start is called before the first frame update
     void Start() {
@@ -33,47 +37,69 @@ public class PathSystem : MonoBehaviour {
         }
     }
 
-    void CreatePath() {
+    void CreateMainPath() {
 
-        gridCellList.Clear();
+        mainGridCellList.Clear();
         Vector2 currentPosition = startLocation.transform.position;
         gridCellList.Add(new MyGridCell(currentPosition));
 
+
+        //create the main path
         for (int i = 0; i < pathLength; i++) {
 
             int n = random.Next(100);
 
-            if (n.IsBetween(0, 49)) {
+            if (n.IsBetween(0, 49))
+            {
                 currentPosition = new Vector2(currentPosition.x + cellSize, currentPosition.y);
             }
-            else {
+            else
+            {
                 currentPosition = new Vector2(currentPosition.x, currentPosition.y + cellSize);
             }
 
             gridCellList.Add(new MyGridCell(currentPosition));
-
+            mainGridCellList.Add(new MyGridCell(currentPosition));
         }
     }
 
-    IEnumerator CreatePathRoutine() {
+    void CreateBranchPath(int length)
+    {
+        int index = random.Next(mainGridCellList.Count);
+        Vector2 currentPosition = mainGridCellList[index].location;
+        bool exists = false;
 
-        gridCellList.Clear();
-        Vector2 currentPosition = startLocation.transform.position;
-        gridCellList.Add(new MyGridCell(currentPosition));
-
-        for (int i = 0; i < pathLength; i++) {
+        //create branching path
+        for (int i = 0; i < length; i++)
+        {
 
             int n = random.Next(100);
 
-            if (n.IsBetween(0, 49)) {
+            if (n.IsBetween(0, 15))
+            {
                 currentPosition = new Vector2(currentPosition.x + cellSize, currentPosition.y);
             }
-            else {
+            else if (n.IsBetween(15, 50))
+            {
                 currentPosition = new Vector2(currentPosition.x, currentPosition.y + cellSize);
             }
+            else if (n.IsBetween(50, 65))
+            {
+                currentPosition = new Vector2(currentPosition.x - cellSize, currentPosition.y);
+            }
+            else
+            {
+                currentPosition = new Vector2(currentPosition.x, currentPosition.y - cellSize);
+            }
 
-            gridCellList.Add(new MyGridCell(currentPosition));
-            yield return null;
+            foreach (MyGridCell cell in gridCellList)
+            {
+                if (currentPosition == cell.location)
+                    exists = true;
+            }
+            if (!exists)
+                gridCellList.Add(new MyGridCell(currentPosition));
+            
         }
     }
 
@@ -89,14 +115,21 @@ public class PathSystem : MonoBehaviour {
     }
 
     // Update is called once per frame
-    void Update() {
-        if (Input.GetKeyDown(KeyCode.Space)) {
+    void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
             SetSeed();
-
-            if (animatedPath)
-                StartCoroutine(CreatePathRoutine());
-            else
-                CreatePath();
+            gridCellList.Clear();
+            mainGridCellList.Clear();
+            CreateMainPath();
+            for (int i = 0; i < branchNum + random.Next(3); i++)
+            {
+                CreateBranchPath(branchLength + random.Next(3));
+            }
+            pathLength += 2;
+            branchLength += 4;
+            branchNum += 2;
         }
     }
 }

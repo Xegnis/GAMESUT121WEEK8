@@ -13,7 +13,6 @@ public class GridSystem : MonoBehaviour {
 
     System.Random random;
 
-    public CircleBuddy buddy;
     public int spawnCount = 10;
 
     public float pauseTime = 1.0f;
@@ -25,9 +24,6 @@ public class GridSystem : MonoBehaviour {
         DateTime epochStart = new System.DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
         random = new System.Random( (int)(DateTime.Now - epochStart).TotalSeconds);
 
-        for(int i = 0; i < spawnCount; i++) {
-            Instantiate(buddy, GetRandomLocation(), Quaternion.identity);
-        }
     }
 
     void DrawGrid() {
@@ -61,16 +57,20 @@ public class GridSystem : MonoBehaviour {
 }
 
 [System.Serializable]
-public class MyGridCell {
+public class MyGridCell
+{
 
     public Vector2 location;
 
-    public MyGridCell(){}
-    public MyGridCell(Vector2 v) {
+    public MyGridCell() { }
+    public MyGridCell(Vector2 v)
+    {
         location = new Vector2(v.x, v.y);
     }
-    public MyGridCell(float x, float y) {
+    public MyGridCell(float x, float y)
+    {
         location = new Vector2(x, y);
     }
 
 }
+
