@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using TMPro;
 
 public class PathSystem : MonoBehaviour {
 
@@ -19,6 +20,8 @@ public class PathSystem : MonoBehaviour {
     public float cellSize = 1.0f;
 
     public Transform startLocation;
+    public TMP_InputField input;
+    public GameObject seedScreen;
 
     [Header("Objects")]
     public Transform player;
@@ -37,13 +40,25 @@ public class PathSystem : MonoBehaviour {
     int plusNum = 1;
     int minusNum = 2;
 
-    void Start()
+    public void RandomSeed ()
     {
+        seedType = SeedType.RANDOM;
         SetSeed();
         NextLevel();
+        seedScreen.SetActive(false);
     }
 
-    void SetSeed() {
+    public void CustomSeed()
+    {
+        seedType = SeedType.CUSTOM;
+        seed = int.Parse(input.text);
+        SetSeed();
+        NextLevel();
+        seedScreen.SetActive(false);
+    }
+
+    void SetSeed()
+    {
         if (seedType == SeedType.RANDOM) {
             random = new System.Random();
         }
@@ -189,7 +204,7 @@ public class PathSystem : MonoBehaviour {
             plusNum ++;
         if (random.Next(100) > 30)
             minusNum += random.Next(2);
-
+        player.GetComponent<PlayerMovement>().canMove = true;
     }    
 
     void Update()

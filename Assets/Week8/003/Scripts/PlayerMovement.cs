@@ -13,17 +13,22 @@ public class PlayerMovement : MonoBehaviour
     public TMP_Text scoreText;
     public GameObject loseScreen;
 
-    bool canMove = true;
+    public bool canMove = false;
 
     void Start()
     {
-        canMove = true;
         Time.timeScale = 1;
         loseScreen.SetActive(false);
     }
 
     void Update()
     {
+        if (Input.GetKeyDown(KeyCode.P))
+        {
+            Application.Quit();
+        }
+        if (ps.seedScreen.activeSelf)
+            return;
         time -= Time.deltaTime;
         score += Time.deltaTime;
 
